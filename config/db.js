@@ -6,10 +6,13 @@ dns.setServers(["1.1.1.1", "1.0.0.1"]);
 
 
 
-const uri = process.env.URI
-
 const connectDB  =async()=>{
 try {
+  const uri = process.env.URI
+  if (!uri) {
+    throw new Error("The URI environment variable is not set")
+  }
+
   const connect = await mongoose.connect(uri)
   console.log("Database connected",
     connect.connection.name,
@@ -18,7 +21,7 @@ try {
   )
   return 1
 } catch (error) {
-  console.error("error",uri)
+  console.error("Database connection failed:", error.message)
   return 0
   
 }
