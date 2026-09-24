@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "express-validator": "^7.3.2",
+    "firebase": "^12.18.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.5.0",
+    "mongodb-connection-string-url": "^7.0.2",
+    "mongoose": "^9.9.3",
+    "mongoose-sequence": "^6.0.1",
+    "node-email-verifier": "^4.0.0"
+  }
+}

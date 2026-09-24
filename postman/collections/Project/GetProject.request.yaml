@@ -1,0 +1,11 @@
+$kind: http-request
+url: http://localhost:8000/project
+method: GET
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_1a9z}}"
+order: 1790000256059

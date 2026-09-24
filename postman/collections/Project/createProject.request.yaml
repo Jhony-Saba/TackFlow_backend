@@ -1,0 +1,17 @@
+$kind: http-request
+url: http://localhost:8000/project
+method: POST
+body:
+  type: json
+  content: "{\"title\":\"ghffghjgfhjjgh\",\r
+
+    \"context\":\"\"\r
+
+    \r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_08hm}}"
+order: 4037387440866231

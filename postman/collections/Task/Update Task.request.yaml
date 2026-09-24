@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:8000/task/:id
+method: PUT
+pathVariables:
+  id: 507f1f77bcf86cd799439011
+body:
+  type: json
+  content: "{\"title\":\"Updated task\",\r
+
+    \"status\":\"In Progress\",\r
+
+    \"deadline\":null\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_08hm}}"
+order: 3974175511401273

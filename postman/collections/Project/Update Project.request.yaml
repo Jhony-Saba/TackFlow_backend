@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:8000/project/:id
+method: PUT
+pathVariables:
+  id: 6ab3aab624a436d51d98505f
+body:
+  type: json
+  content: "{\"title\" :\"\",\r
+
+    \"context\":\"\"\r
+
+    \r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_08hm}}"
+order: 4444031189221962

@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:8000/task
+method: POST
+body:
+	type: json
+	content: "{\"title\":\"New task\",\r
+
+		\"projectId\":\"507f1f77bcf86cd799439011\",\r
+
+		\"status\":\"To Do\",\r
+
+		\"deadline\":null\r
+
+		}"
+auth:
+	type: bearer
+	credentials:
+		token: "{{json_web_token_08hm}}"
+order: 3970056449686182

@@ -1,0 +1,13 @@
+$kind: http-request
+url: http://localhost:8000/project/:id
+method: DELETE
+pathVariables:
+  id: 6ab3aab424a436d51d98505e
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_10vb}}"
+order: 4298647860543143
