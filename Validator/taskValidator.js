@@ -1,5 +1,5 @@
 const { validationResult, check } = require('express-validator');
-JavaScript
+
 /**
 * Validation middleware for Task-related requests.
 *
