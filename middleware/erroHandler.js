@@ -1,3 +1,13 @@
+/**
+* Global Express error handler.
+*
+* Responsibilities:
+* - Catches unhandled errors from routes and middleware.
+* - Returns a consistent JSON error response.
+* - Uses the current response status code or defaults to 500.
+*
+* @type {import("express").ErrorRequestHandler}
+*/
 const errorHandler = (err, req, res, next) => {
   if (res.headersSent) {
     return next(err);

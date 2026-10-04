@@ -1,5 +1,19 @@
 const { validationResult, check } = require('express-validator');
-
+JavaScript
+/**
+* Validation middleware for Task-related requests.
+*
+* Validates the following fields:
+* - id (optional): Must be a valid MongoDB ObjectId.
+* - title (required for POST requests, optional for updates): Must be a non-empty string.
+* - projectId (required for POST requests, optional for updates): Must be a valid MongoDB ObjectId.
+* - status (required for POST requests, optional for updates): Must be one of:
+* 'To Do', 'In Progress', or 'Done'.
+* - deadline (optional): Must be a valid ISO 8601 date.
+*
+* Returns a 400 Bad Request response with validation errors if any
+* validation rule fails. Otherwise, passes control to the next middleware.
+*/
 const taskValidator = [
 	check('id')
 		.optional()

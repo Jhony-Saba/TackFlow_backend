@@ -20,6 +20,32 @@ const CurrentUser = asyncHandler(async (req, res) => {
 });
 
 
+
+
+/**
+* Register a new user.
+*
+* Workflow:
+* 1. Extract user information from the request body.
+* 2. Validate that all required fields are provided.
+* 3. Check whether the email is already registered.
+* 4. Hash the user's password before storing it.
+* 5. Create a new user record in the database.
+* 6. Generate a JWT access token for the newly registered user.
+* 7. Return the access token to allow immediate authentication.
+*
+* @route POST /api/users/register
+* @access Public
+*
+* @param {Object} req - Express request object containing user data.
+* @param {Object} res - Express response object.
+*
+* @returns {Object} JSON response containing the generated access token.
+*
+* @throws {400} If required fields are missing.
+* @throws {403} If a user with the provided email already exists.
+* @throws {500} If user creation fails.
+*/
 const Register = asyncHandler(async (req, res) => {
 
 // Extract 'username', 'password', 'email', and 'role' fields from the request body.
@@ -46,20 +72,21 @@ throw new Error ("User already registered !");
 
 }
 
-// hashing password
+// Hash the password using bcrypt before saving it to the database.
+// The value 10 represents the salt rounds.
 const HashPassword=await bcrypt.hash(password,10);
  // Create the user
 const createUser = await User.create({ username, password:HashPassword ,email , role });
 
-
+// Store the created user object in a local variable.
 const user =createUser;
 
 
 
-//if the user  was created login to the  dashboard
+/// Ensure the user was successfully created.
 if(user){
 
-
+// Generate a JWT access token containing user information.
 Tokenaccess= await jwt.sign({user : {
   userid:user._id,
   username:user.username,
@@ -68,10 +95,12 @@ Tokenaccess= await jwt.sign({user : {
   {expiresIn :process.env.TIMER}
 );
 
-req.user= user.encode;
+
+// Return the access token to the client.
 res.status(200).json({Tokenaccess})
 
 }else{
+// User creation failed unexpectedly.
   res.status(500);
   throw new Error ("User creation failed" )
 }
@@ -81,7 +110,29 @@ res.status(200).json({Tokenaccess})
 
 
 
-
+/**
+* Authenticate a user and generate an access token.
+*
+* Workflow:
+* 1. Extract the user's email and password from the request body.
+* 2. Validate that both fields are provided.
+* 3. Search for a user with the provided email.
+* 4. Compare the provided password with the stored hashed password.
+* 5. If authentication succeeds, generate a JWT access token.
+* 6. Return the access token to the client.
+*
+* @route POST /api/users/login
+* @access Public
+*
+* @param {Object} req - Express request object containing login credentials.
+* @param {Object} res - Express response object.
+*
+* @returns {Object} JSON response containing the generated access token.
+*
+* @throws {400} If required fields are missing.
+* @throws {400} If the password is incorrect.
+* @throws {400} If the user does not exist.
+*/
 const Login = asyncHandler(async ( req, res) => {
   //get  user email  and password using  body
   const {email,password}=req.body;
@@ -90,7 +141,7 @@ const Login = asyncHandler(async ( req, res) => {
     res.status(400);
     throw new Error("All fields are mandatory");
   }
-  // if not  empty find the use  where email  is the  email of  the user
+// if not  empty find the use  where email  is the  email of  the user
 const user =await User.findOne({email});
 // if the user registered in the database the can login
 if(user){
@@ -98,7 +149,7 @@ if(user){
 const correctPassword = await bcrypt.compare(password,user.password);
 //if equals send to the user token  access  
 if(correctPassword){
-
+// Generate a JWT access token containing user information.
 Tokenaccess= await jwt.sign({user : {
   userid:user._id,
   username:user.username,
@@ -108,14 +159,17 @@ Tokenaccess= await jwt.sign({user : {
 );
 
 
-req.user= user.encode;
+// Return the generated access token to the client.
 res.status(200).json({Tokenaccess})
 
 
-  }else{res.status(400)
+  }else{
+    // Password comparison failed.
+    res.status(400)
         throw new Error("Incorrect  password");     
   }
 }else{
+  // No user was found with the provided email.
   res.status(400);
   throw new Error ("User not found")
 }

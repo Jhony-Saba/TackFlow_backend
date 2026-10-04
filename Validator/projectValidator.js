@@ -1,5 +1,15 @@
 const { validationResult, check } = require('express-validator');
-
+/**
+* Validation middleware for Project-related requests.
+*
+* Validates the following fields:
+* - id (optional): Must be a valid MongoDB ObjectId.
+* - title (optional): Must be a non-empty string after trimming whitespace.
+* - context (optional): Must be a string.
+*
+* If validation fails, returns a 400 response with the validation errors.
+* Otherwise, passes control to the next middleware.
+*/
 const projectValidator=[
     check('id')
     .optional()

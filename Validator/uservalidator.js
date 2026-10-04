@@ -1,6 +1,23 @@
 const {validationResult, check } = require('express-validator');
 
-// Single middleware function
+/**
+* Validation middleware for User-related requests.
+*
+* Validates the following fields:
+* - username (optional): Must be a string, at least 6 characters long,
+* and cannot be empty. The value is trimmed and converted to lowercase.
+* - email (required): Must not be empty and must be a valid email address.
+* - password (required): Must not be empty and must be a strong password
+* containing at least:
+* - 6 characters
+* - 1 uppercase letter
+* - 1 lowercase letter
+* - 1 number
+* - 1 symbol
+*
+* If validation fails, returns a 400 Bad Request response with
+* an array of validation errors. Otherwise, proceeds to the next middleware.
+*/
 const userValidator = [
   check('username')
     .optional()
