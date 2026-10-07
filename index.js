@@ -52,7 +52,7 @@ app.use("/project", require("./routes/projectRoute"));//Project-related routes
 * Base path: /task
 */
 app.use("/task", require("./routes/taskRoute"));//Task-related routes
-/**
+/*
 * Global error-handling middleware.
 * Must be registered after all routes and middleware
 * so it can catch and process application errors.
@@ -77,6 +77,4 @@ const run =async()=>{
       else console.log("connection  error invalid Server ")
 }
 run();
-
-
 

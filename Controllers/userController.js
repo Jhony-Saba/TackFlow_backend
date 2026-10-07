@@ -83,7 +83,6 @@ const user =createUser;
 
 
 
-/// Ensure the user was successfully created.
 if(user){
 
 // Generate a JWT access token containing user information.
