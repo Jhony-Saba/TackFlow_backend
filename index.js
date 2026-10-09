@@ -37,6 +37,7 @@ app.use(cors());
 * Makes JSON data available through req.body.
 */
 app.use(express.json());// Parse incoming JSON request bodies.
+app.use("/",require('./routes/emailRoute'));
 /**
 * Register user-related routes.
 * Base path: /user
