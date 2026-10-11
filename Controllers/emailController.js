@@ -1,61 +1,40 @@
-const nodemailer = require("nodemailer");
-require("dotenv").config();
-const authEmail = process.env.EMAIL_ACCOUNT;
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: {
-    user: authEmail,
-    pass: process.env.EMAIL_PASSWORD,
-  },
+const transporter = require("../lib/emails/nodemailer");
+const asyncHandler = require("express-async-handler");
+const message = require("../lib/emails/messages");
+const temStorage= require("../Services/tempStorage")
+const send_verification = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    if (await transporter.verify()) {
+      console.log("SMTP connection successful");
+      await transporter.sendMail(message.messageVerification(email, temStorage.create(email)));
+    } else {
+      console.error("Failed to verify SMTP connection");
+      res.status(500);
+    }
+  } catch (err) {
+    console.error("Full error:");
+    console.error(err);
+    console.error(err.stack);
+    res.status(500);
+  }
+
+  res.status(200).json({
+    message: "the email was send it",
+  });
 });
 
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000);
+const verify_code= asyncHandler(async(req,res)=>{
+const {email,otp}=req.body;
+if(temStorage.verify(email,otp)){
+  res.status(200).json({})
+}else{
+  res.status(400).json({message:"Invalide code"});
 }
 
-const send_verification = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
-    }
-
-    const verificationCode = generateVerificationCode();
-
-    await transporter.sendMail({
-      from:`TaskFlow <${authEmail}>`,
-      to: email,
-      subject: "Email Verification",
-      html: `
-        <h2>Email Verification</h2>
-        <p>Your verification code is:</p>
-        <h1>${verificationCode}</h1>
-        <p>This code expires in 10 minutes.</p>
-      `,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Verification code sent",
-      code: verificationCode,
-    });
-  } catch (error) {
-    console.error("Failed to send verification email:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to send email",
-    });
-  }
-};
-
+})
 module.exports = {
   send_verification,
+  verify_code,
 };
