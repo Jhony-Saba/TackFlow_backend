@@ -1,7 +1,8 @@
-const transporter = require("../lib/emails/nodemailer");
+
 const asyncHandler = require("express-async-handler");
 const message = require("../lib/emails/messages");
 const temStorage= require("../Services/tempStorage")
+const transporter = require('../Services/nodemailer');
 const send_verification = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
