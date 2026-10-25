@@ -19,20 +19,28 @@ const {validationResult, check } = require('express-validator');
 * an array of validation errors. Otherwise, proceeds to the next middleware.
 */
 const userValidator = [
-  check('username')
+  check('otp')
     .optional()
-    .isString().withMessage('Name must be a string')
-    .isLength({ min: 6 }).withMessage('Name must be at least 6 characters')
-    .notEmpty().withMessage('Empty user name')
-    .toLowerCase()
-    .trim(),
+    .notEmpty().withMessage("Empty otp ")
+    .trim()
+    .isLength({max:6,min:6}).withMessage('out of band')
+    .isNumeric(),
+check('username')
+.optional()
+.isString().withMessage('Name must be a string')
+.isLength({ min: 6 }).withMessage('Name must be at least 6 characters')
+.notEmpty().withMessage('Empty user name')
+.toLowerCase()
+.trim(),
 
-  check('email')
+check('email')
+ .optional()
  .notEmpty()
  .trim()
  .isEmail().withMessage('Invalid email format'),
  
  check('password')
+ .optional()
  .notEmpty().withMessage('password Empty password')
  .isString()
  .isStrongPassword({ minLength: 6, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 }).withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol'),

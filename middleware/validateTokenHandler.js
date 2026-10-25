@@ -33,8 +33,6 @@ let token;
 // Retrieve the Authorization header from the request
 let authHeader = req.header('Authorization'||'authoration');
 
-
-
 // Check if Authorization header exists and starts with "Bearer "
 if(authHeader && authHeader.startsWith('Bearer ')){
 // Extract the token part after "Bearer "
@@ -56,6 +54,38 @@ jwt.verify(token,process.env.ASSECC_TOKEN_SECRET,(err,decode)=>{
     res.status(401);
     throw new Error("Authorization header missing or invalid");
   }
+});
+const validateSingUpToken=asyncHandler(async(req,res,next)=>{
+
+// Variable to store the extracted JWT token
+let token;
+// Retrieve the Authorization header from the request
+let authHeader = req.header('Authorization'||'authoration');
+if(authHeader && authHeader.startsWith('Bearer')){
+  token=authHeader.split(" ")[1];
+
+  jwt.verify(token,process.env.ASSECC_TOKEN_SECRET,(err,decode)=>{
+ // If token verification fails 
+
+ 
+ 
+ if(err){
+        res.status(401);
+        throw new  Error("User is not authorised")
+     } 
+// Store decoded user information in the request object
+    req.email = decode;
+// Proceed to the next middleware or route handler
+      next();});
+    
+    
+    
+    
+    }
+
+
+
 })
+
 // Export middleware for use in protected routes
-module.exports={validateToken};
+module.exports={validateToken,validateSingUpToken};

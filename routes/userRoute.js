@@ -5,16 +5,19 @@ const router =express.Router();
 const user =require("../Controllers/userController")
 // Import validation middleware for user requests
 const uservalidator =require("../Validator/uservalidator")
-
+const{validateSingUpToken} = require('../middleware/validateTokenHandler');
 
 
 /**
 * User Routes
 * Defines all routes related to user authentication and profile actions.
 */
-router.route("/current").get(user.CurrentUser)
-router.route("/register").post(uservalidator , user.Register)
-router.route("/login").post(uservalidator,user.Login)
+router.use(uservalidator);
+router.route("/register/request").post( user.registerRequest);
+router.route("/register/verify").post(validateSingUpToken ,user.verifyRegister);
+router.route("/register").post( user.Register);
+router.route("/login").post(user.Login);
+
 
 
 

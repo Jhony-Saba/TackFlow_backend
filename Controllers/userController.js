@@ -2,24 +2,132 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("../node_modules/bcrypt");
 const jwt =require('../node_modules/jsonwebtoken');
 const User = require("../models/userModel");
+const saveUser =require('../Services/User/tempStorage');
+const emailService=require("../Services/Email/service");
 
 
-const CurrentUser = asyncHandler(async (req, res) => {
-//   Find a single user in the database by matching the 'userid' from the request parameters,
-// and exclude the 'password' field from the returned result for security reasons.
-  const user = await User.findOne({ userid: req.params.userid }).select("-password");
+const registerRequest=asyncHandler(async(req,res)=>{
 
-// If no user is found in the database, set the HTTP response status to 404 (Not Found)
-// and throw an error with the message "User not found" to indicate the requested user does not exist.
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
+  const { username, password,email, role } = req.body;
+
+
+  if (!username || !password  ||!email || !role) {
+    res.status(400);
+    throw new Error("Missing body");
   }
 
-  res.status(200).json(user);
+
+
+  // Check if a user with the same username OR email exists
+const userAvailable = await User.findOne({email});
+if(userAvailable ){
+res.status(403);
+
+throw new Error ("User already registered !");
+
+}
+
+const userData={
+    username,
+    password,
+    role,
+  };
+
+  // Store registration data temporarily
+  // saveUser.saveRegistration(email, userData);
+  // Send OTP email
+ 
+  if(await emailService.send_verification(email) && saveUser.saveRegistration(email, userData) ){
+// Generate a JWT access token containing user information.
+accessToken= await jwt.sign({email : {
+  email }},
+  process.env.ASSECC_TOKEN_SECRET,
+  {expiresIn :process.env.TIMER}
+);
+
+
+// Return the access token to the client.
+res.status(200).json({accessToken,
+    success: true,
+    message: "Verification code sent to your email",
+  })
+
+res.status(500);
+
+  }
 });
 
+const verifyRegister =asyncHandler(async(req,res)=>{
 
+ const {otp}= req.body;
+ const {email} =req.email.email;
+
+   // Check if a user with the same username OR email exists
+const userAvailable = await User.findOne({email});
+if(userAvailable ){
+res.status(403);
+
+throw new Error ("User already registered !");
+
+}
+ 
+ const currentUser = await  saveUser.getRegistration(email);
+ 
+    if (!currentUser) {
+     
+      res.status(404);
+       throw new Error("The user not  found it .");
+    }
+const verifyEmail= await emailService.verify_code(email,otp);
+console.log(currentUser);
+console.log(verifyEmail);
+ if( verifyEmail === true ){
+
+
+// Hash the password using bcrypt before saving it to the database.
+// The value 10 represents the salt rounds.
+const HashPassword=await bcrypt.hash(currentUser.password,10);
+ // Create the user
+const createUser = await User.create({ username:currentUser.username, password:HashPassword ,email , role:currentUser.role });
+
+
+// Store the created user object in a local variable.
+const user =createUser;
+
+if(user){
+saveUser.deleteRegistration(email);
+// Generate a JWT access token containing user information.
+Tokenaccess= await jwt.sign({user : {
+  userid:user._id,
+  username:user.username,
+  email :user.email,}},
+  process.env.ASSECC_TOKEN_SECRET,
+  {expiresIn :process.env.TIMER}
+);
+
+
+// Return the access token to the client.
+res.status(200).json({Tokenaccess})
+
+}else{
+// User creation failed unexpectedly.
+  res.status(500);
+  throw new Error ("User creation failed" )
+}
+
+
+
+ }else{
+  res.status(404);
+  throw new Error("otp not correct ");
+ }
+
+ 
+
+
+
+
+})
 
 
 /**
@@ -78,12 +186,7 @@ const HashPassword=await bcrypt.hash(password,10);
  // Create the user
 const createUser = await User.create({ username, password:HashPassword ,email , role });
 
-// Store the created user object in a local variable.
-const user =createUser;
-
-
-
-if(user){
+if(createUser){
 
 // Generate a JWT access token containing user information.
 Tokenaccess= await jwt.sign({user : {
@@ -175,4 +278,4 @@ res.status(200).json({Tokenaccess})
 
 });
 
-module.exports = { CurrentUser, Register, Login};
+module.exports = {registerRequest,verifyRegister , Register, Login};
