@@ -7,6 +7,7 @@ const emailService=require("../Services/Email/service");
 
 
 const registerRequest=asyncHandler(async(req,res)=>{
+ 
 
   const { username, password,email, role } = req.body;
 
@@ -79,8 +80,7 @@ throw new Error ("User already registered !");
        throw new Error("The user not  found it .");
     }
 const verifyEmail= await emailService.verify_code(email,otp);
-console.log(currentUser);
-console.log(verifyEmail);
+
  if( verifyEmail === true ){
 
 

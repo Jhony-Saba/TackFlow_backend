@@ -1,19 +1,36 @@
 const nodemailer = require("nodemailer");
-const authEmail=process.env.EMAIL_ACCOUNT;
-const pass=process.env.EMAIL_PASSWORD;
+const {accessToken}=require ('./googleapis');
 
-/**Create a transporter using SMTP*/
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
-  auth: {
-    user: authEmail,
-    pass: pass,
-  },
-   tls: {
+const email =process.env.EMAIL;
+const clientId= process.env.CLIENT_ID;
+const clientSecret=process.env.CLIENT_SECRET;
+const refreshToken= process.env.REFRESH_TOKEN;
+
+
+
+/**Create a transporter using google Apis
+ * @returns {Promise} tranporter
+*/
+async function createTransporter() {
+  const token = await accessToken();
+const transporter = nodemailer.createTransport({ 
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: email,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        refreshToken: refreshToken,
+        accessToken: token,
+      },
+  tls: {
     rejectUnauthorized: false,
   },
-});
+    });
+  
+    return transporter;
+  }
 
-module.exports = transporter;
+module.exports = {
+  createTransporter,
+};

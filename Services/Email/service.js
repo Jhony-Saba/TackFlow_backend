@@ -1,8 +1,8 @@
 
 const asyncHandler = require("express-async-handler");
 const message = require("./messages");
-const temStorage= require("../Otp/tempStorage")
-const transporter = require('./nodemailer');
+const temOtp= require("../Otp/tempStorage")
+const {createTransporter} = require('./nodemailer');
 /**
  * Sends an email verification code (OTP) to the specified email address.
  *
@@ -34,11 +34,12 @@ const transporter = require('./nodemailer');
  */
 const send_verification = asyncHandler(async (email) => {
   
-
+ const transporter = await createTransporter();
   try {
     if (await transporter.verify()) {
-      console.log("SMTP connection successful");
-      await transporter.sendMail(message.messageVerification(email, temStorage.create(email)));
+      console.log(" connection successful");
+      
+      await transporter.sendMail(message.messageVerification(email, temOtp.create(email)));
     } else {
       console.error("Failed to verify SMTP connection");
      
@@ -60,7 +61,7 @@ const send_verification = asyncHandler(async (email) => {
  * 
  * */
 const verify_code= asyncHandler(async(email,enteredOtp)=>{
-return temStorage.verify(email,enteredOtp);});
+return temOtp.verify(email,enteredOtp);});
 module.exports = {
   send_verification,
   verify_code,
