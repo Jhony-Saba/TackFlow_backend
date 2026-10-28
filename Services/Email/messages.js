@@ -6,7 +6,7 @@ const authEmail = process.env.EMAIL;
  * @returns {object}
  */
 const messageVerification = (email, otp) => ({
-  from:`<TaskFlow> ${authEmail}`,
+  from:`TaskFlow <${authEmail}>`,
   to: email,
   subject: "Verify Your Email Address",
   text: `
