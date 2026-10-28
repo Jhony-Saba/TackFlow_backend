@@ -3,6 +3,8 @@ const asyncHandler = require("express-async-handler");
 const message = require("./messages");
 const temOtp= require("../Otp/tempStorage")
 const {createTransporter} = require('./nodemailer');
+const { gmail } = require("./googleapis");
+
 /**
  * Sends an email verification code (OTP) to the specified email address.
  *
@@ -35,24 +37,55 @@ const {createTransporter} = require('./nodemailer');
 const send_verification = asyncHandler(async (email) => {
   
  const transporter = await createTransporter();
-  try {
-    if (await transporter.verify()) {
-      console.log(" connection successful");
-      
-      await transporter.sendMail(message.messageVerification(email, temOtp.create(email)));
-    } else {
-      console.error("Failed to verify SMTP connection");
-     
-       return false
-    }
-  } catch (err) {
-    console.error("Full error:");
-    console.error(err);
-    console.error(err.stack);
-    return false
+  try { 
+     const info = await transporter.sendMail(message.messageVerification(email, temOtp.create(email)));
+     const raw = info.message
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+
+        const response = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: { raw },
+    });
+    console.log(response.data);
+       if (response.data && response.data.id) {
+    console.log("✅ Email sent successfully!");
+    console.log("Message ID:", response.data.id);
+    console.log("Thread ID:", response.data.threadId);
+
+    return {
+      success: true,
+      messageId: response.data.id,
+    };
   }
 
- return true;
+
+   console.error("❌ Gmail did not return a message ID");
+
+  return {
+    success: false,
+    messageId: null,
+  };
+
+  
+  }catch (err) {
+    console.error("❌ Failed to send email");
+  console.error("Error:", err.message);
+  console.error("Status:", err.response?.status);
+  console.error("Details:", err.response?.data);
+
+  return {
+    success: false,
+    messageId: null,
+  };
+  }finally{
+      transporter.close();
+  }
+
+
 });
 /** 
  * @param {string} email

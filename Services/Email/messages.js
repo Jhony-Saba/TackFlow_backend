@@ -1,4 +1,4 @@
-const authEmail = process.env.EMAIL_ACCOUNT;
+const authEmail = process.env.EMAIL;
 /**
  * Message template for user verification
  * @param {string} email
@@ -6,7 +6,7 @@ const authEmail = process.env.EMAIL_ACCOUNT;
  * @returns {object}
  */
 const messageVerification = (email, otp) => ({
-  from: authEmail,
+  from:`<TaskFlow> ${authEmail}`,
   to: email,
   subject: "Verify Your Email Address",
   text: `

@@ -10,17 +10,15 @@ const oAuth2Client = new google.auth.OAuth2(
 oAuth2Client.setCredentials({
   refresh_token: process.env.REFRESH_TOKEN,
 });
-
-const accessToken = async () => {
-  const result = await oAuth2Client.getAccessToken();
-
-  if (!result.token) {
-    throw new Error("Failed to obtain Google access token");
-  }
-
-  return result.token;
-};
+/**
+ * prepare gmail api
+ */
+const gmail = google.gmail({
+  version: "v1",
+  auth: oAuth2Client,
+});
 
 module.exports = {
-accessToken,
+oAuth2Client,
+gmail,
 };

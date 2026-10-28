@@ -81,7 +81,7 @@ throw new Error ("User already registered !");
     }
 const verifyEmail= await emailService.verify_code(email,otp);
 
- if( verifyEmail === true ){
+ if( verifyEmail.success  ){
 
 
 // Hash the password using bcrypt before saving it to the database.
