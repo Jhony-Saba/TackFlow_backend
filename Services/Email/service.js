@@ -53,9 +53,6 @@ const send_verification = asyncHandler(async (email) => {
     console.log(response.data);
        if (response.data && response.data.id) {
     console.log("✅ Email sent successfully!");
-    console.log("Message ID:", response.data.id);
-    console.log("Thread ID:", response.data.threadId);
-
     return {
       success: true,
       messageId: response.data.id,

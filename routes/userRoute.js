@@ -15,7 +15,6 @@ const{validateSingUpToken} = require('../middleware/validateTokenHandler');
 router.use(uservalidator);
 router.route("/register/request").post( user.registerRequest);
 router.route("/register/verify").post(validateSingUpToken ,user.verifyRegister);
-router.route("/register").post( user.Register);
 router.route("/login").post(user.Login);
 
 

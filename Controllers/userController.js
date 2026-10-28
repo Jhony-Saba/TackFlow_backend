@@ -37,10 +37,12 @@ const userData={
   // Store registration data temporarily
   // saveUser.saveRegistration(email, userData);
   // Send OTP email
+  const emailResult = await emailService.send_verification(email);
  
-  if(await emailService.send_verification(email) && saveUser.saveRegistration(email, userData) ){
-// Generate a JWT access token containing user information.
-accessToken= await jwt.sign({email : {
+  if(!emailResult.success || !(saveUser.saveRegistration(email, userData)) ){
+    res.status(500);
+    throw new Error("Failed to save registration data");}
+    accessToken= await jwt.sign({email : {
   email }},
   process.env.ASSECC_TOKEN_SECRET,
   {expiresIn :process.env.TIMER}
@@ -52,10 +54,6 @@ res.status(200).json({accessToken,
     success: true,
     message: "Verification code sent to your email",
   })
-
-res.status(500);
-
-  }
 });
 
 const verifyRegister =asyncHandler(async(req,res)=>{
@@ -81,7 +79,7 @@ throw new Error ("User already registered !");
     }
 const verifyEmail= await emailService.verify_code(email,otp);
 
- if( verifyEmail.success  ){
+ if( verifyEmail.success ===true   ){
 
 
 // Hash the password using bcrypt before saving it to the database.
@@ -127,90 +125,8 @@ res.status(200).json({Tokenaccess})
 
 
 
+
 })
-
-
-/**
-* Register a new user.
-*
-* Workflow:
-* 1. Extract user information from the request body.
-* 2. Validate that all required fields are provided.
-* 3. Check whether the email is already registered.
-* 4. Hash the user's password before storing it.
-* 5. Create a new user record in the database.
-* 6. Generate a JWT access token for the newly registered user.
-* 7. Return the access token to allow immediate authentication.
-*
-* @route POST /api/users/register
-* @access Public
-*
-* @param {Object} req - Express request object containing user data.
-* @param {Object} res - Express response object.
-*
-* @returns {Object} JSON response containing the generated access token.
-*
-* @throws {400} If required fields are missing.
-* @throws {403} If a user with the provided email already exists.
-* @throws {500} If user creation fails.
-*/
-const Register = asyncHandler(async (req, res) => {
-
-// Extract 'username', 'password', 'email', and 'role' fields from the request body.
-// This uses object destructuring so each property can be accessed directly
-// without repeatedly writing 'req.body.username', 'req.body.password', etc.
-  const { username, password,email, role } = req.body;
-
-// Check if any of the required fields (username, password, email, or role) are missing
-// from the request body. If at least one is missing, set the HTTP status to 400 (Bad Request)
-// and throw an error with the message "Missing body" to indicate invalid input.
-  if (!username || !password  ||!email || !role) {
-    res.status(400);
-    throw new Error("Missing body");
-  }
-
-
-
-  // Check if a user with the same username OR email exists
-const userAvailable = await User.findOne({email});
-if(userAvailable ){
-res.status(403);
-
-throw new Error ("User already registered !");
-
-}
-
-// Hash the password using bcrypt before saving it to the database.
-// The value 10 represents the salt rounds.
-const HashPassword=await bcrypt.hash(password,10);
- // Create the user
-const createUser = await User.create({ username, password:HashPassword ,email , role });
-
-if(createUser){
-
-// Generate a JWT access token containing user information.
-Tokenaccess= await jwt.sign({user : {
-  userid:user._id,
-  username:user.username,
-  email :user.email,}},
-  process.env.ASSECC_TOKEN_SECRET,
-  {expiresIn :process.env.TIMER}
-);
-
-
-// Return the access token to the client.
-res.status(200).json({Tokenaccess})
-
-}else{
-// User creation failed unexpectedly.
-  res.status(500);
-  throw new Error ("User creation failed" )
-}
-});
-
-
-
-
 
 /**
 * Authenticate a user and generate an access token.
@@ -278,4 +194,4 @@ res.status(200).json({Tokenaccess})
 
 });
 
-module.exports = {registerRequest,verifyRegister , Register, Login};
+module.exports = {registerRequest,verifyRegister, Login};
