@@ -5,25 +5,30 @@ class TempStorage {
      saveRegistration(email, userData){
       try{
         this.users.set(email,userData);
-        return true
-      }catch(erro){
-         return false
+       
+        return {success:true, message: "email was saved"}
+      }catch(error){
+         return {success:true, message: error}
       }
+    
      
-     
-      };
+  };
       /**
        * @param {string} email
-       * @return {object} 
+       
        */
   getRegistration(email) {
+   
     const data = this.users.get(email);
-
+      console.log(data); 
     if (!data) {
-      return null;
+      return {success: false ,message:"not found this user"};
     }
-    return data ;
+    return {success:true,Data:data} ;
 }
+
+
+
 deleteRegistration(email){
   this.users.delete(email);
 }

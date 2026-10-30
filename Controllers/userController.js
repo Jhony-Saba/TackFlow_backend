@@ -3,6 +3,7 @@ const bcrypt = require("../node_modules/bcrypt");
 const jwt =require('../node_modules/jsonwebtoken');
 const User = require("../models/userModel");
 const saveUser =require('../Services/User/tempStorage');
+const saveOtp = require('../Services/Otp/tempStorage');
 const emailService=require("../Services/Email/service");
 
 
@@ -38,15 +39,17 @@ const userData={
   // saveUser.saveRegistration(email, userData);
   // Send OTP email
   const emailResult = await emailService.send_verification(email);
- 
-  if(!emailResult.success || !(saveUser.saveRegistration(email, userData)) ){
+  const checkSavingData = saveUser.saveRegistration(email, userData);
+
+  if(!emailResult.success || !checkSavingData.success  ){
     res.status(500);
     throw new Error("Failed to save registration data");}
-    accessToken= await jwt.sign({email : {
+  
+  
+  accessToken= await jwt.sign({email : {
   email }},
   process.env.ASSECC_TOKEN_SECRET,
-  {expiresIn :process.env.TIMER}
-);
+  {expiresIn :process.env.TIMER});
 
 
 // Return the access token to the client.
@@ -70,23 +73,18 @@ throw new Error ("User already registered !");
 
 }
  
- const currentUser = await  saveUser.getRegistration(email);
- 
-    if (!currentUser) {
-     
-      res.status(404);
-       throw new Error("The user not  found it .");
-    }
-const verifyEmail= await emailService.verify_code(email,otp);
 
- if( verifyEmail.success ===true   ){
-
+const checkOtp =saveOtp.verify(email,otp);
+const currentUser = saveUser.getRegistration(email);
+ if(checkOtp.success===false || currentUser.success===false){
+  res.status(409);
+  throw new Error ( `${checkOtp.message} ${currentUser.message}`) }
 
 // Hash the password using bcrypt before saving it to the database.
 // The value 10 represents the salt rounds.
-const HashPassword=await bcrypt.hash(currentUser.password,10);
+const HashPassword=await bcrypt.hash(currentUser.Data.password,10);
  // Create the user
-const createUser = await User.create({ username:currentUser.username, password:HashPassword ,email , role:currentUser.role });
+const createUser = await User.create({ username:currentUser.Data.username, password:HashPassword ,email , role:currentUser.Data.role });
 
 
 // Store the created user object in a local variable.
@@ -112,19 +110,6 @@ res.status(200).json({Tokenaccess})
   res.status(500);
   throw new Error ("User creation failed" )
 }
-
-
-
- }else{
-  res.status(404);
-  throw new Error("otp not correct ");
- }
-
- 
-
-
-
-
 
 })
 

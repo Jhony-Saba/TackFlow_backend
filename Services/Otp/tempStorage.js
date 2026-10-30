@@ -62,13 +62,14 @@ create(key, durationMs = this.durationMs) {
  */
   verify(key, enteredOtp) {
     const savedOtp = this.store.get(key);
+    console.log(savedOtp);
 
     if (!savedOtp) {
-      return false;
+      return {success:false,message:"faild, otp not  saved"};
     }
 
     if (savedOtp !== Number(enteredOtp)) {
-      return false;
+      return {success:false,message:"faild, incorrect opt "};
     }
 
     this.store.delete(key);
@@ -78,7 +79,7 @@ create(key, durationMs = this.durationMs) {
       this.timers.delete(key);
     }
 
-    return true;
+    return {success:true,message:"operation complited successfully"};
   }
 }
 

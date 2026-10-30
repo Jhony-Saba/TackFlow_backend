@@ -84,15 +84,8 @@ const send_verification = asyncHandler(async (email) => {
 
 
 });
-/** 
- * @param {string} email
- * @param {number}enteredOtp 
- * @return {boolean}  
- * 
- * */
-const verify_code= asyncHandler(async(email,enteredOtp)=>{
-return temOtp.verify(email,enteredOtp);});
+
+
 module.exports = {
   send_verification,
-  verify_code,
 };
